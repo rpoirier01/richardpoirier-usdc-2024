@@ -23,10 +23,17 @@
      * return the appropriate object here. */
 
     var result = {
-        "SearchTerm": "",
+        "SearchTerm": searchTerm,
         "Results": []
     };
-    
+    for(const objIndex in scannedTextObj){
+        for(const contentIndex in scannedTextObj[objIndex].Content){
+            const contentItem = scannedTextObj[objIndex].Content[contentIndex];
+            if(contentItem.Text.includes(searchTerm)){
+                result.Results.push({"ISBN":scannedTextObj[objIndex].ISBN, "Page":contentItem.Page, 'Line':contentItem.Line })
+            }
+        }
+    }    
     return result; 
 }
 
@@ -102,3 +109,33 @@ if (test2result.Results.length == 1) {
     console.log("Expected:", twentyLeaguesOut.Results.length);
     console.log("Received:", test2result.Results.length);
 }
+
+/**Custom console.assert tests written below */
+//want to make sure the program doesnt crash or return strings when called with an empty object
+console.assert( 
+    JSON.stringify(findSearchTermInBooks('the', [])) === JSON.stringify({"SearchTerm":'the','Results':[]}),
+    'Empty scannedTextObj returns no strings'
+)
+
+console.assert(
+    JSON.stringify(findSearchTermInBooks('watermelon',twentyLeaguesIn)) === JSON.stringify({"SearchTerm":'watermelon','Results':[]}) ,
+    'When there is no match findSearchTermInBooks returns no strings'
+)
+
+console.assert(
+    JSON.stringify(findSearchTermInBooks('the', twentyLeaguesIn) !== JSON.stringify(findSearchTermInBooks('The', twentyLeaguesIn))),
+    'findSearchTerms differentiates between capital and lowercase letters'
+)
+console.assert(
+    findSearchTermInBooks('her', twentyLeaguesIn).Results.length===1,
+    'findSearchTerms returns the right amount of results with "how" only returns one answer'
+)
+console.assert(
+    findSearchTermInBooks("Canadian's", twentyLeaguesIn).Results.length===1,
+    'findSearchTerm handles non letter characters'
+)
+console.assert(
+    findSearchTermInBooks(';', twentyLeaguesIn).Results.length===1,
+    'findSearchTerms handles one character input'
+)
+// console.log(findSearchTermInBooks("Canadian's", twentyLeaguesIn).Results.length)
